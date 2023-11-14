@@ -51,7 +51,7 @@ class ConstructIndex(object):
 
 
 if __name__ == '__main__':
-    conf_file = ".\\conf\\system.conf"
+    conf_file = "./conf/system.conf"
     indexer = ConstructIndex(conf_file=conf_file)
     flag = indexer.construct()
     print(flag)

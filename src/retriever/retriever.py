@@ -46,7 +46,7 @@ class BM25Retriever(object):
 
 if __name__ == '__main__':
     query = sys.argv[1]
-    conf_file = ".\\conf\\system.conf"
+    conf_file = "./conf/system.conf"
     bm25_retrevier = BM25Retriever(conf_file=conf_file)
     recall_list = bm25_retrevier([query], is_recall_doc=True)
     pprint(recall_list)
