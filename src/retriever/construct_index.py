@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import traceback
+import configparser
 import pyterrier as pt
 from typing import Dict
 from tqdm import tqdm
@@ -12,9 +13,11 @@ class ConstructIndex(object):
     离线构建索引
     """
 
-    def __init__(self, dataset_path: str, index_location: str):
-        self._dataset_path = dataset_path
-        self._index_location = index_location
+    def __init__(self, conf_file: str):
+        self._config = configparser.ConfigParser()
+        self._config.read(conf_file, encoding="utf-8")
+        self._dataset_path = self._config["construct_index"]["data_file"]
+        self._index_location = self._config["construct_index"]["location_path"]
 
     def _load_dataset(self) -> Dict[str, str]:
         """
@@ -48,8 +51,7 @@ class ConstructIndex(object):
 
 
 if __name__ == '__main__':
-    indexer = ConstructIndex(
-        dataset_path="./data/corpus/collection.tsv",
-        index_location="./data/index/msmacro_stemmer_bm25")
+    conf_file = ".\\conf\\system.conf"
+    indexer = ConstructIndex(conf_file=conf_file)
     flag = indexer.construct()
     print(flag)
