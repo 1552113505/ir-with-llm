@@ -3,7 +3,7 @@
 This information retrieval system consists of two parts, one is the recall module and the other is the rearrangement module.
 ### System architecture
 The complete system architecture diagram is as follows:
-![img.png](img.png)
+![img.png]("https://github.com/1552113505/ir-with-llm/blob/main/image2")<br>
 The modules of the entire system are as follows:
 1. Input: queries, you can enter a single query or multiple queries for batch queries
 
