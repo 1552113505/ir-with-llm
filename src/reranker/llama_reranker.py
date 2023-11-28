@@ -35,3 +35,4 @@ if __name__== "__main__" :
     llama_reranker = LlamaReranker()
     results = llama_reranker(prompts)
     print(results)
+    
