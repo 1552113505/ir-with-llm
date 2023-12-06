@@ -14,7 +14,7 @@ class PromptManager(object):
 class PairwisePrompt(PromptManager):
     def __init__(self, query: str, documents: List[str]):
         super().__init__(query=query, documents=documents)
-        self.prompt_template = """Passage: [{}] Query: [{}] Is this passage relevant to the query? Please answer True/False(Only return true or false, either one or the other, do not return any answer other than true or false.) Answer:"""
+        self.prompt_template = """Passage: [{}] Query: [{}] Does the passage and the query say the same thing? Please return Ture or false, either way. Answer:"""
 
     def generate(self):
         prompts = []
