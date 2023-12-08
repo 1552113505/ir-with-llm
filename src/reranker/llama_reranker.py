@@ -5,7 +5,9 @@ import pandas as pd
 import huggingface_hub
 
 from typing import *
+from torch.nn.functional import softmax
 from vllm import LLM, SamplingParams
+from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer
 from collections import defaultdict
 from src.prompt.prompt_manager import PairwisePrompt, PromptManager
 
@@ -13,34 +15,58 @@ huggingface_hub.login(token="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")
 
 
 class LlamaReranker(object):
-    def __init__(self, model="/llm/llama2/llama2_7b", temperature=0.8, top_p=0.95):
-        self.llm = LLM(model=model)
-        self.sampling_params = SamplingParams(temperature=temperature, top_p=top_p)
+    def __init__(self, model="/llm/llama2/llama2_7b", temperature=0.):
+        self.tokenizer = LlamaTokenizer.from_pretrained(model, padding_side = "left")
+        self.model = LlamaForCausalLM.from_pretrained(model)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.vocab_size = len(self.tokenizer.get_vocab().keys())
+        # self.llm = LLM(model=model)
+        # self.sampling_params = SamplingParams(temperature=temperature, logprobs=vocab_size, max_tokens=1)
+   
+    # def __call__(self, prompts : List[str]):
+    #     scores = []
+    #     outputs = self.llm.generate(prompts, self.sampling_params)
+    #     for idx, output in enumerate(outputs):
+    #         logits = output.logprobs[0]
+    #         score = logits['true'] / sum([logits['true'], logits['false']])
+    #         scores.append(scores)
+    #     return scores
 
-    def __call__(self, documents: List[str], prompts: List[str]):
+    def __call__(self, documents, prompts):
         reranker_results = []
-        true_text_dict = {}
-        false_text_dict = {}
+        true_token = self.tokenizer.encode("True")[1]
+        false_token = self.tokenizer.encode("False")[1]
+        inputs = self.tokenizer(prompts, padding = "longest", return_tensors = "pt")
+        with torch.no_grad():
+            outputs = self.model.forward(**inputs)
+            print(self.model.generate(**inputs))
 
-        outputs = self.llm.generate(prompts, self.sampling_params)
-        for idx, output in enumerate(outputs):
-            generate_text = output.outputs[0].text
-            print(generate_text)
-            generate_prob = output.outputs[0].cumulative_logprob
-            if "True" in generate_text or "true" in generate_text:
-              true_text_dict[idx] = generate_prob
-            else:
-              false_text_dict[idx] = generate_prob
-        print(true_text_dict)
-        true_results_sorted = sorted(true_text_dict.items(), key=lambda x: x[1], reverse=True)
-        false_results_sorted = sorted(false_text_dict.items(), key=lambda x: x[1], reverse=False)
-
-        for item in true_results_sorted:
-          reranker_results.append(documents[item[0]])
-        for item in false_results_sorted:
-          reranker_results.append(documents[item[0]])
-
+        logits_after_softmax = outputs.logits[:, 0, (true_token, false_token)].softmax(dim=1)
+        logits_list = logits_after_softmax.cpu().detach().tolist()
+        print(logits_list)
+        sorted_results = sorted(range(len(logits_list)), key = lambda x:logits_list[x], reverse = True)
+        for sorted_result in sorted_results:
+            reranker_results.append(documents[sorted_result])
         return reranker_results
+        
+
+# import pyterrier as pt
+# if not pt.started():
+#     pt.init()
+# from pyterrier import TransformerBase
+
+# class Wrapper(TransformerBase)
+#     def __init__(prompt, model="/llm/llama2/llama2_7b", temperature=0.):
+#         self.model = LlamaReranker(model=model, temperature=0.)
+#         self.prompt = promot
+#     def transform(self, df : pd.DataFrame):
+#         prompts = df.apply(lambda x : self.prompt(x.query, x.text), axis=1)
+#         scores = self.model(prompts)
+#         df['score'] = scores
+
+#         from pt.model import add_ranks
+#         return add_ranks(df)
+        
 
 
 if __name__== "__main__" :
