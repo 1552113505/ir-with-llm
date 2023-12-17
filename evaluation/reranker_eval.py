@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import ir_datasets
 import configparser
 import pyterrier as pt
 from ir_measures import nDCG, AP
 
 from utils.data_utils import construct_topics, construct_qrels
+from src.reranker.llama_reranker import LlamaReranker, LlamaRerankerWrapper
 
-pt.init()
+if not pt.started():
+    pt.init()
 
 
 def evaluation(conf_file = None):
@@ -26,12 +29,15 @@ def evaluation(conf_file = None):
 
     topics = construct_topics(topic_file_path)
     qrels = construct_qrels(qrels_file_path)
+    
+    llama_reranker = LlamaReranker()
+    llama_reranker_wrapper = LlamaRerankerWrapper(llama_reranker)
 
     text_ref = pt.get_dataset('irds:msmarco-passage')
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25")
-
+    pipe = bm25 >> pt.text.get_text(text_ref, 'text') >> llama_reranker_wrapper
     result = pt.Experiment(
-        [bm25],
+        [pipe],
         topics,
         qrels,
         names=["BM25"],

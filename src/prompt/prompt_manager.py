@@ -15,6 +15,7 @@ class PairwisePrompt(PromptManager):
     def __init__(self, query: str, documents: List[str]):
         super().__init__(query=query, documents=documents)
         self.prompt_template = """Passage: [{}] Query: [{}] Does the passage and the query say the same thing? Please return Ture or false, either way. Answer:"""
+        self.prompt_template = """ If the document below aligns with the ensuing query, output ’true’, else output ’false’: query: [{}] document: [{}] relevant:"""
 
     def generate(self):
         prompts = []
