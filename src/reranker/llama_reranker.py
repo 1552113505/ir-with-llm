@@ -61,7 +61,6 @@ class LlamaReranker(Transformer):
                 toks = self.tokenizer(batch, padding="longest", return_tensors="pt", add_special_tokens=True).to(self.model.device) # Same as before
                 logits = self.model.forward(**toks).logits
                 logits_after_softmax = logits[:, 0, (self.TRUE, self.FALSE)].log_softmax(dim=1) # Log softmax is generally used, can't remember why
-                print(logits_after_softmax[:, 0].cpu().detach().tolist())
                 outputs.extend(logits_after_softmax[:, 0].cpu().detach().tolist()) # Get just the softmax prob of 'true'
 
         return outputs
