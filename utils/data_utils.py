@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+import random
 import ir_datasets
 import pandas as pd
 import pyterrier as pt
@@ -92,3 +94,44 @@ def construct_qrels(qrels_file_path: None):
     )
 
     return qrels
+
+
+def construct_kshots_datas(k):
+    """
+    构造k-shots例子
+    :return: list
+    """
+    datas = []
+
+    id2query = {}
+    id2passage = {}
+    dataset = ir_datasets.load("msmarco-passage/train/triples-small")
+    for doc in tqdm(dataset.docs_iter()):
+        id2passage[doc.doc_id] = doc.text
+
+    for query in tqdm(dataset.queries_iter()):
+        id2query[query.query_id] = query.text
+
+    for idx, docpair in enumerate(dataset.docpairs_iter()):
+        if idx >= 100000:
+            break
+        datas.append(
+            {
+                "query": id2query[docpair.query_id],
+                "pos_doc": id2passage[docpair.doc_id_a],
+                "neg_doc": id2passage[docpair.doc_id_b]
+            }
+        )
+
+    datas = random.choices(datas, k=k)
+
+    with open(f"data/k_shots/{k}_shots_examples.json", "w") as fo:
+        for data in datas:
+            fo.write(json.dumps(data, ensure_ascii=False))
+            fo.write("\n")
+        
+
+if __name__ == "__main__":
+    construct_kshots_datas(1)
+    construct_kshots_datas(2)
+    construct_kshots_datas(3)

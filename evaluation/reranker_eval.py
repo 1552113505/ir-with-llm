@@ -7,7 +7,7 @@ from ir_measures import nDCG, AP
 from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer, BitsAndBytesConfig
 
 from utils.data_utils import construct_topics, construct_qrels
-from src.reranker.llama_reranker import LlamaReranker
+from src.reranker.llama_reranker import LlamaReranker, LlamaRerankerKShots
 
 if not pt.started():
     pt.init()
@@ -28,7 +28,7 @@ bnb_config = BitsAndBytesConfig(
 torch.cuda.empty_cache()
 
 
-def evaluation(conf_file = None):
+def evaluation(k = 0, conf_file = None):
     """
     评估
     :conf_file:
@@ -46,15 +46,18 @@ def evaluation(conf_file = None):
 
     topics = construct_topics(topic_file_path)
     qrels = construct_qrels(qrels_file_path)
-    
-    #llama_reranker = LlamaReranker()
-    #llama_reranker_wrapper = LlamaRerankerWrapper(llama_reranker)
 
     tokenizer = LlamaTokenizer.from_pretrained('/llm/llama2/llama2_7b', padding_side = "left")
     tokenizer.add_special_tokens({"pad_token": "[PAD]"})
     model = LlamaForCausalLM.from_pretrained('/llm/llama2/llama2_7b', torch_dtype=torch.float16, device_map={"": 0})
-    llama_reranker = LlamaReranker(model=model, 
-                                    tokenizer=tokenizer)
+
+    if k == 0:
+        llama_reranker = LlamaReranker(model=model, 
+                                        tokenizer=tokenizer)
+    else:
+        llama_reranker = LlamaRerankerKShots(model=model, 
+                                        tokenizer=tokenizer,
+                                        k=k)
 
     text_ref = pt.get_dataset('irds:msmarco-passage')
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25")
@@ -72,5 +75,5 @@ def evaluation(conf_file = None):
 
 if __name__ == '__main__':
     conf_file = "./conf/system.conf"
-    result = evaluation()
+    result = evaluation(k=1)
     print(result)

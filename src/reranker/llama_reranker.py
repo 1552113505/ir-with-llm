@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import time
 import torch
 import pandas as pd
@@ -14,6 +15,8 @@ from collections import defaultdict
 from src.prompt.prompt_manager import PairwisePrompt, PromptManager
 from pyterrier import Transformer
 from pyterrier.model import add_ranks
+
+from utils.data_utils import construct_kshots_datas
 
 huggingface_hub.login(token="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")
 if not pt.started():
@@ -67,6 +70,30 @@ class LlamaReranker(Transformer):
     
     def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
         prompts = topics_or_res.apply(lambda x : PairwisePrompt(query=x.query, documents=[x.text]).generate()[0], axis=1) # Point wise prompt creation
+        prompts = list(prompts.to_dict().values())
+        scores = self.score(prompts)
+        topics_or_res["score"] = scores # ordered input therefore can assign list directly
+        return add_ranks(topics_or_res)
+
+
+class LlamaRerankerKShots(LlamaReranker):
+    def __init__(self, model, tokenizer, k: int, batch_size : int = 1):
+        super().__init__(model, tokenizer, batch_size)
+        self._k= k
+        self._examples = self.load_examples(k)
+
+    def load_examples(self, k: int):
+        examples = []
+        with open(f"data/k_shots/{k}_shots_examples.json") as fi:
+            for line in fi:
+                line = line.strip()
+                examples.append(json.loads(line))
+
+        return examples
+    
+    def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
+        prompts = topics_or_res.apply(lambda x : PairwisePrompt(query=x.query, documents=[x.text], is_k_shots=True, 
+                                                                examples=self._examples).generate(k=self._k)[0], axis=1) # Point wise prompt creation
         prompts = list(prompts.to_dict().values())
         scores = self.score(prompts)
         topics_or_res["score"] = scores # ordered input therefore can assign list directly
