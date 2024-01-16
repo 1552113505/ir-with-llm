@@ -1,29 +1,17 @@
 # -*- coding: utf-8 -*-
+import sys
 import torch
 import ir_datasets
 import configparser
 import pyterrier as pt
 from ir_measures import nDCG, AP
-from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer, BitsAndBytesConfig
+from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer
 
 from utils.data_utils import construct_topics, construct_qrels
 from src.reranker.llama_reranker import LlamaReranker, LlamaRerankerKShots
 
 if not pt.started():
     pt.init()
-
-use_4bit = True
-bnb_4bit_compute_dtype = "float32"
-bnb_4bit_quant_type = "nf4"
-compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
-use_nested_quant = False
-
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=use_4bit,
-    bnb_4bit_quant_type=bnb_4bit_quant_type,
-    bnb_4bit_compute_dtype=compute_dtype,
-    bnb_4bit_use_double_quant=use_nested_quant
-)
 
 torch.cuda.empty_cache()
 
@@ -74,6 +62,7 @@ def evaluation(k = 0, conf_file = None):
 
 
 if __name__ == '__main__':
+    k = int(sys.argv[1])
     conf_file = "./conf/system.conf"
-    result = evaluation(k=1)
+    result = evaluation(k=k)
     print(result)

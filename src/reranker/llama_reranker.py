@@ -10,7 +10,7 @@ from typing import *
 from tqdm import tqdm
 from torch.nn.functional import softmax
 from vllm import LLM, SamplingParams
-from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer, BitsAndBytesConfig
+from transformers import AutoTokenizer, LlamaForCausalLM, LlamaTokenizer
 from collections import defaultdict
 from src.prompt.prompt_manager import PairwisePrompt, PromptManager
 from pyterrier import Transformer
@@ -19,23 +19,10 @@ from pyterrier.model import add_ranks
 from utils.data_utils import construct_kshots_datas
 
 huggingface_hub.login(token="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")
+
 if not pt.started():
     pt.init()
 
-
-use_8bit = True
-bnb_8bit_compute_dtype = "float16"
-bnb_8bit_quant_type = "nf8"
-compute_dtype = getattr(torch, bnb_8bit_compute_dtype)
-use_nested_quant = False
-
-bnb_config = BitsAndBytesConfig(
-    load_in_8bit=use_8bit,
-    bnb_8bit_quant_type=bnb_8bit_quant_type,
-    bnb_8bit_compute_dtype=compute_dtype,
-    bnb_8bit_use_double_quant=use_nested_quant
-)
-#torch.cuda.clear_cache()
 torch.cuda.empty_cache()
 
 
@@ -114,8 +101,7 @@ if __name__== "__main__" :
     frame['qid'] = 1
     frame['query'] = "cost of interior concrete flooring"
     tokenizer = LlamaTokenizer.from_pretrained('/llm/llama2/llama2_7b', padding_side = "left")
-    llama_reranker = LlamaReranker(model=LlamaForCausalLM.from_pretrained('/llm/llama2/llama2_7b', quantization_config=bnb_config, device_map="auto"), 
+    llama_reranker = LlamaReranker(model=LlamaForCausalLM.from_pretrained('/llm/llama2/llama2_7b', device_map="auto"), 
                                     tokenizer=tokenizer)
     results = llama_reranker(frame)
-    # print("\n".join(results))
     print(results)

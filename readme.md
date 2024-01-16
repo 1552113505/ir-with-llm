@@ -1,6 +1,6 @@
 # Information retrieval system
 ### Abstract
-This information retrieval system consists of two parts, one is the recall module and the other is the rearrangement module.
+This information retrieval system consists of two parts, one is the recall module and the other is the rerank module.
 ### System architecture
 The complete system architecture diagram is as follows:
 ![img.png]("https://github.com/1552113505/ir-with-llm/blob/main/image2")<br>
@@ -11,14 +11,16 @@ The modules of the entire system are as follows:
 
 3. Prompt engineering: Build corresponding prompts for the candidate list of recalls, with strategies such as point wise, list wise, etc.
 
-4. LLM rerank: Using a large model to implement rerank work on the constructed prompt, common open source large models include Alpaca, llama, llama2, T5, and chatglm2.
+4. LLM rerank: I use the large language model llama2 to rerank the candidate list for bm25 recall, and use the In-context learning capability of the large language model to construct several different prompt implementations of 0-shot, 1-shots, 2-shots, and 3-shots to rearrange the candidate list. I obtain the sorting score by calculating the probability values of true and false produced by the large language model, and complete the evaluation of the effect by pyterrier's own evaluation function.
 
 5. The output is related documents
 ### Execute Command
 1. Construct index:<br>
-`python -m src.retriever.construct_index`
+`sh bin/construct_index.sh`
 2. Retreiver:<br>
-`python -m src.retriever.retriever "hello"`
-3. Rerank:<br>
+`sh bin/start_retriever.sh "hello"`
+3. Reranker:<br>
+`sh bin/start_reranker.sh`
 4. Eval:<br>
-4.1.retreiver-eval: <br>`python -m evaluation.retriever_eval`
+4.1.retreiver-eval: <br>`sh bin/retriever_eval.sh`
+4.2.reranker-eval: <br>`sh bin/reranker_eval.sh k`where k is the k in k-shots.

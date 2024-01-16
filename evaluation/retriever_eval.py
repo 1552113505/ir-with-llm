@@ -5,7 +5,9 @@ from ir_measures import nDCG, AP
 
 from utils.data_utils import construct_topics, construct_qrels
 
-pt.init()
+
+if not pt.started():
+    pt.init()
 
 
 def evaluation(conf_file = None):
@@ -27,7 +29,6 @@ def evaluation(conf_file = None):
     topics = construct_topics(topic_file_path)
     qrels = construct_qrels(qrels_file_path)
 
-    text_ref = pt.get_dataset('irds:msmarco-passage')
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25")
 
     result = pt.Experiment(

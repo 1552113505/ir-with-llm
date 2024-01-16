@@ -5,7 +5,8 @@ import pyterrier as pt
 from typing import Dict
 from tqdm import tqdm
 
-pt.init()
+if not pt.started():
+    pt.init()
 
 
 class ConstructIndex(object):
@@ -41,6 +42,7 @@ class ConstructIndex(object):
                                               # stopwords=pt.TerrierStopwords.terrier,
                                               # stemmer="porter",
                                               wmodel=wmodel)
+
             # indexref = iter_indexer.index(self._load_dataset(), meta=["docno", "text"])
             indexref = iter_indexer.index(self._load_dataset())
             construct_flag = True

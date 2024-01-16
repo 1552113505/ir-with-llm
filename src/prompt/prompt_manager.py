@@ -16,7 +16,7 @@ class PromptManager(object):
         
 
 class PairwisePrompt(PromptManager):
-    def __init__(self, query: str, documents: List[str], examples: List[str], is_k_shots: bool = False):
+    def __init__(self, query: str, documents: List[str], examples: List[str] = None, is_k_shots: bool = False):
         super().__init__(query=query, documents=documents)
 
         self._examples = examples

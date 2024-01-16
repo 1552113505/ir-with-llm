@@ -9,7 +9,8 @@ from typing import List
 
 from utils.data_utils import transfer_tsv_id2doc
 
-pt.init()
+if not pt.started():
+    pt.init()
 
 
 class BM25Retriever(object):
@@ -39,9 +40,10 @@ class BM25Retriever(object):
             doc_ids = recall_list.docid
             for doc_id in doc_ids:
                 documents.append(id2doc[str(doc_id)])
-            # recall_list["document"] = documents
 
-        return documents
+            recall_list["document"] = documents
+
+        return recall_list
 
 
 if __name__ == '__main__':
