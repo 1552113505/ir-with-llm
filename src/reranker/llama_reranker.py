@@ -101,6 +101,7 @@ if __name__== "__main__" :
     frame['qid'] = 1
     frame['query'] = "cost of interior concrete flooring"
     tokenizer = LlamaTokenizer.from_pretrained('/llm/llama2/llama2_7b', padding_side = "left")
+    tokenizer.add_special_tokens({"pad_token": "[PAD]"})
     llama_reranker = LlamaReranker(model=LlamaForCausalLM.from_pretrained('/llm/llama2/llama2_7b', device_map="auto"), 
                                     tokenizer=tokenizer)
     results = llama_reranker(frame)
