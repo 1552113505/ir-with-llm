@@ -22,5 +22,5 @@ The modules of the entire system are as follows:
 3. Reranker:<br>
 `sh bin/start_reranker.sh`
 4. Eval:<br>
-4.1.retreiver-eval: <br>`sh bin/retriever_eval.sh`
+4.1.retreiver-eval: <br>`sh bin/retriever_eval.sh`<br>
 4.2.reranker-eval: <br>`sh bin/reranker_eval.sh k`where k is the k in k-shots.
