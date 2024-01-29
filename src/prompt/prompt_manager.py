@@ -15,7 +15,7 @@ class PromptManager(object):
         raise NotImplementedError 
         
 
-class PairwisePrompt(PromptManager):
+class PointwisePrompt(PromptManager):
     def __init__(self, query: str, documents: List[str], examples: List[str] = None, is_k_shots: bool = False):
         super().__init__(query=query, documents=documents)
 
@@ -46,6 +46,47 @@ class PairwisePrompt(PromptManager):
         else: 
             for document in self.documents:
                 prompts.append(self.prompt_template.format("\n".join(self.generate_examples(k)), document, self.query))
+
+        return prompts
+
+
+class PairwisePrompt(PromptManager):
+    def __init__(self, query: str, passage_a: str, passage_b: str, examples: List[str] = None, is_k_shots: bool = False):
+        super().__init__(query=query, documents=None)
+        self.passage_a = passage_a
+        self.passage_b = passage_b
+        self._examples = examples
+
+        if not is_k_shots:
+            self.prompt_template = """ Given a query "{}", which of the following two passages is more relevant to the query?
+                Passage A: "{}"
+                Passage B: "{}"
+                Output Passage A or Passage B:"""
+        else:
+            self.prompt_template = """Given a query, which of the following two passages is more relevant to the query?
+                {}
+    
+                query: "{}"
+                Passage A: "{}"
+                Passage B: "{}"
+                Output:    
+            """
+   
+    def generate_examples(self):
+        example_str_list = []
+        for example in self._examples:
+            example_str = """query: "{}" \nPassage A: "{}" \nPassage B: "{}" \nOutput: {}\n""".format(example["query"], example["pos_doc"], example["neg_doc"], "Passage A")
+            example_str_list.append(example_str)
+            
+        return "\n".join(example_str_list)
+
+    def generate(self, k: int = 0):
+        prompts = []
+
+        if k == 0:
+            prompts.append(self.prompt_template.format(self.query, self.passage_a, self.passage_b))
+        else:
+            prompts.append(self.prompt_template.format(self.generate_examples(), self.query, self.passage_a, self.passage_b))
 
         return prompts
 
