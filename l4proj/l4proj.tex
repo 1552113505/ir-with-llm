@@ -11,8 +11,8 @@
 
 %==============================================================================
 %% METADATA
-\title{Level 4 Project Report Template}
-\author{John H. Williamson}
+\title{Prompt Learning to Improve Neural Ranking and Recommendation}
+\author{Haodong Ma}
 \date{September 14, 2018}
 
 \maketitle
@@ -79,33 +79,24 @@
 \pagenumbering{arabic} 
 
 
-Why should the reader care about what are you doing and what are you actually doing?
-\section{Guidance}
+\section{Motivate}
 
-\textbf{Motivate} first, then state the general problem clearly. 
+In the digital age, effectively retrieving highly relevant information from vast amounts of textual data is one of the core challenges in the field of information retrieval. Users often prioritize the top documents in search results, a behavior pattern that underscores the importance of a mechanism capable of accurately ranking based on relevance.
 
-\section{Writing guidance}
-\subsection{Who is the reader?}
+Early information retrieval systems, such as those based on Boolean logic models, were effective in specific application scenarios but limited in understanding the deeper semantics of text. As a milestone, the BM25 probabilistic model, proposed by Stephen Robertson and others at the TREC-3 conference, considered term frequency (TF) and inverse document frequency (IDF) along with document length, providing a probabilistic framework for relevance assessment. BM25 improved retrieval quality over its predecessors, yet it still lacked in dealing with the depth of word meanings, especially synonyms and contextual semantics.
 
-This is the key question for any writing. Your reader:
+To address these issues, Vector Space Models (VSM) and Latent Semantic Analysis (LSA) were introduced. VSM represents text content as vectors in a multidimensional space and uses cosine similarity to assess similarity between documents, offering a new method for document ranking. LSA, through singular value decomposition (SVD), further reveals the latent semantic structure between documents. Although this improved the models' understanding of semantic relationships, limitations remained in handling semantic diversity.
 
-\begin{itemize}
-    \item
-    is a trained computer scientist: \emph{don't explain basics}.
-    \item
-    has limited time: \emph{keep on topic}.
-    \item
-    has no idea why anyone would want to do this: \emph{motivate clearly}
-    \item
-    might not know \emph{anything} about your project in particular:
-    \emph{explain your project}.
-    \item
-    but might know precise details and check them: \emph{be precise and
-    strive for accuracy.}
-    \item
-    doesn't know or care about you: \emph{personal discussions are
-    irrelevant}.
-\end{itemize}
+In recent years, the Transformer architecture and its derivatives, such as BERT (Bidirectional Encoder Representations from Transformers) and GPT (Generative Pre-trained Transformer), have effectively uncovered the subtle semantic connections between query intentions and document content through self-attention mechanisms. These models have shown potential improvements in the performance of information retrieval systems, particularly in relevance assessment and document ranking. For instance, research by Nogueira et al. utilized BERT to re-rank preliminary search results, demonstrating the potential of deep learning models to enhance retrieval system performance. They introduced a two-stage ranking framework, decomposing document ranking into two phases. The first phase uses the classical BM25 probabilistic model to quickly filter a candidate document set with higher relevance from a large dataset. The second phase employs deep learning-based machine learning models for in-depth semantic analysis and re-ranking of the candidate list from the first phase, thus providing a more accurate relevance assessment and ranking of candidate documents.
+
+Although extensive research confirms that Large Language Models (LLMs) can follow the "pre-training and fine-tuning" paradigm, acquiring a broad understanding of language through extensive data pre-training and then fine-tuning for specific tasks to achieve optimal performance, this approach generally requires significant computational resources and time, especially during the fine-tuning phase, posing a substantial challenge in resource-limited environments.
+
+To address this issue, a potential feasible approach is to adopt a new paradigm, namely prompt learning, to replace the "pre-training and fine-tuning" paradigm for specific search tasks. This new paradigm, described as "pre-train, prompt, and predict," centers on providing LLMs with specific inputs (e.g., a question, a sentence, or a set of instructions) to guide the model in generating the expected output. Combined with different ranking strategies, including Point-wise, Pair-wise, or List-wise, prompt learning can further enhance the efficiency and accuracy of information retrieval systems' ranking.
+
+\section{Aim}
+My project aims to construct a two-stage re-ranking model, first utilizing the BM25 probabilistic model to retrieve relevant documents as a candidate document set in the first stage. Then, in the second stage of retrieval, using large language models and prompts to help re-rank the candidate document set, and testing the generalization ability of large language models using point-wise and pair-wise strategies, while exploring how prompt learning and point-wise and pair-wise strategies can aid in document retrieval.
+
+
 
 Remember, you will be marked by your supervisor and one or more members
 of staff. You might also have your project read by a prize-awarding
