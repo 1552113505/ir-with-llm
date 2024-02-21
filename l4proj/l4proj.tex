@@ -13,7 +13,7 @@
 %% METADATA
 \title{Prompt Learning to Improve Neural Ranking and Recommendation}
 \author{Haodong Ma}
-\date{September 14, 2018}
+\date{March 22, 2024}
 
 \maketitle
 
@@ -83,11 +83,11 @@
 
 In the digital age, effectively retrieving highly relevant information from vast amounts of textual data is one of the core challenges in the field of information retrieval. Users often prioritize the top documents in search results, a behavior pattern that underscores the importance of a mechanism capable of accurately ranking based on relevance.
 
-Early information retrieval systems, such as those based on Boolean logic models, were effective in specific application scenarios but limited in understanding the deeper semantics of text. As a milestone, the BM25 probabilistic model, proposed by Stephen Robertson and others at the TREC-3 conference, considered term frequency (TF) and inverse document frequency (IDF) along with document length, providing a probabilistic framework for relevance assessment. BM25 improved retrieval quality over its predecessors, yet it still lacked in dealing with the depth of word meanings, especially synonyms and contextual semantics.
+Probabilistic information retrieval models established a fundamental framework for the early development of information retrieval technology. By applying probability theory to the document retrieval process, they provided a mathematical basis for assessing the relevance between queries and documents. Within this framework, the introduction of the BM25 model marked a significant milestone. The BM25 model integrates term frequency (TF), inverse document frequency (IDF), and document length, enhancing the precision and efficiency of retrieval systems in determining relevance through a sophisticated probabilistic framework. The unique contribution of the BM25 model lies not only in its enhancement of retrieval performance but also in laying a solid theoretical and practical foundation for future research, guiding the development of retrieval algorithms towards greater efficiency and effectiveness. However, despite the substantial advancements in retrieval performance achieved by BM25, its capabilities in addressing the deeper semantic understanding of text, such as synonym recognition and context-dependent semantic analysis, remain limited. This limitation highlights the ongoing challenges within information retrieval technologies and points to potential directions for future research.
 
-To address these issues, Vector Space Models (VSM) and Latent Semantic Analysis (LSA) were introduced. VSM represents text content as vectors in a multidimensional space and uses cosine similarity to assess similarity between documents, offering a new method for document ranking. LSA, through singular value decomposition (SVD), further reveals the latent semantic structure between documents. Although this improved the models' understanding of semantic relationships, limitations remained in handling semantic diversity.
+In an attempt to address the lack of semantic understanding in information retrieval models, Gerard Salton and Scott Deerwester proposed the Vector Space Model (VSM) and Latent Semantic Analysis (LSA), respectively. The VSM represents textual content as vectors in a multidimensional space, and uses cosine similarity to assess the similarity between documents, providing a new approach to document ranking.\cite{salton1975vector} LSA further reveals the underlying semantic structure between documents through Singular Value Decomposition (SVD). \cite{deerwester1990indexing,} Although this improves the model's understanding of semantic relationships, there are still limitations in handling semantic diversity.
 
-In recent years, the Transformer architecture and its derivatives, such as BERT (Bidirectional Encoder Representations from Transformers) and GPT (Generative Pre-trained Transformer), have effectively uncovered the subtle semantic connections between query intentions and document content through self-attention mechanisms. These models have shown potential improvements in the performance of information retrieval systems, particularly in relevance assessment and document ranking. For instance, research by Nogueira et al. utilized BERT to re-rank preliminary search results, demonstrating the potential of deep learning models to enhance retrieval system performance. They introduced a two-stage ranking framework, decomposing document ranking into two phases. The first phase uses the classical BM25 probabilistic model to quickly filter a candidate document set with higher relevance from a large dataset. The second phase employs deep learning-based machine learning models for in-depth semantic analysis and re-ranking of the candidate list from the first phase, thus providing a more accurate relevance assessment and ranking of candidate documents.
+In recent years, the Transformer architecture and its derivatives, such as BERT (Bidirectional Encoder Representations from Transformers) and GPT (Generative Pre-trained Transformer), have effectively uncovered the subtle semantic connections between query intentions and document content through self-attention mechanisms. These models have shown potential improvements in the performance of information retrieval systems, particularly in relevance assessment and document ranking. For instance, research by Nogueira et al. utilized BERT to re-rank preliminary search results, demonstrating the potential of deep learning models to enhance retrieval system performance.\cite{nogueira2019passage} They introduced a two-stage ranking framework, decomposing document ranking into two phases. The first phase uses the classical BM25 probabilistic model to quickly filter a candidate document set with higher relevance from a large dataset. The second phase employs deep learning-based machine learning models for in-depth semantic analysis and re-ranking of the candidate list from the first phase, thus providing a more accurate relevance assessment and ranking of candidate documents.
 
 Although extensive research confirms that Large Language Models (LLMs) can follow the "pre-training and fine-tuning" paradigm, acquiring a broad understanding of language through extensive data pre-training and then fine-tuning for specific tasks to achieve optimal performance, this approach generally requires significant computational resources and time, especially during the fine-tuning phase, posing a substantial challenge in resource-limited environments.
 
@@ -97,61 +97,40 @@ To address this issue, a potential feasible approach is to adopt a new paradigm,
 My project aims to construct a two-stage re-ranking model, first utilizing the BM25 probabilistic model to retrieve relevant documents as a candidate document set in the first stage. Then, in the second stage of retrieval, using large language models and prompts to help re-rank the candidate document set, and testing the generalization ability of large language models using point-wise and pair-wise strategies, while exploring how prompt learning and point-wise and pair-wise strategies can aid in document retrieval.
 
 
-
-Remember, you will be marked by your supervisor and one or more members
-of staff. You might also have your project read by a prize-awarding
-committee or possibly a future employer. Bear that in mind.
-
-\subsection{References and style guides}
-There are many style guides on good English writing. You don't need to
-read these, but they will improve how you write.
-
-\begin{itemize}
-    \item
-    \emph{How to write a great research paper} \cite{Pey17} (\textbf{recommended}, even though you aren't writing a research paper)
-    \item
-    \emph{How to Write with Style} \cite{Von80}. Short and easy to read. Available online.
-    \item
-    \emph{Style: The Basics of Clarity and Grace} \cite{Wil09} A very popular modern English style guide.
-    \item
-    \emph{Politics and the English Language} \cite{Orw68}  A famous essay on effective, clear writing in English.
-    \item
-    \emph{The Elements of Style} \cite{StrWhi07} Outdated, and American, but a classic.
-    \item
-    \emph{The Sense of Style} \cite{Pin15} Excellent, though quite in-depth.
-\end{itemize}
-
-\subsubsection{Citation styles}
-
-\begin{itemize}
-\item If you are referring to a reference as a noun, then cite it as: ``\citet{Orw68} discusses the role of language in political thought.''
-\item If you are referring implicitly to references, use: ``There are many good books on writing \citep{Orw68, Wil09, Pin15}.''
-\end{itemize}
-\subsection{Plagiarism warning}
-
-\begin{highlight_title}{WARNING}
-    
-    If you include material from other sources without full and correct attribution, you are commiting plagiarism. The penalties for plagiarism are severe.
-    Quote any included text and cite it correctly. Cite all images, figures, etc. clearly in the caption of the figure.
-\end{highlight_title}
-
-
 %==================================================================================================================================
 \chapter{Background}
-What did other people do, and how is it relevant to what you want to do?
-\section{Guidance}
-\begin{itemize}    
-    \item
-      Don't give a laundry list of references.
-    \item
-      Tie everything you say to your problem.
-    \item
-      Present an argument.
-    \item Think critically; weigh up the contribution of the background and put it in context.    
-    \item
-      \textbf{Don't write a tutorial}; provide background and cite
-      references for further information.
+In this section, we will focus on the basic research work that makes up the various related studies on information retrieval systems. My project aims to create a two-stage reranker model, so we need to delve a little deeper into past research on these topics.
+
+\section{Classical IR Model -- BM25}
+Stephen Robertson first introduced the BM25 algorithm into information retrieval models in 1976. \cite{robertson1976relevance} The BM25 algorithm accounts for the term frequency (TF) — how often a query term appears within an individual document — as well as the term's distribution frequency across the entire document collection, which is quantified by the Inverse Document Frequency (IDF). IDF calculation reflects a term's ubiquity; terms that are rare but potentially information-rich are given greater weight. Additionally, the model incorporates a normalization factor for document length, ensuring that scoring is not biased toward longer documents. To temper the potential adverse effects of excessively high term frequencies within a single document, BM25 employs the concept of term frequency saturation, curbing the excessive influence of such terms on the relevance score.
+
+\subsection{Mathematical Principles Formula}
+The core of the BM25 model is encapsulated in its scoring function, which is mathematically expressed as:
+\[
+\text{Score}(D, Q) = \sum_{i=1}^{n} \text{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+\]
+where the components are defined as follows:
+\begin{itemize}
+    \item $\text{Score}(D, Q)$ is the relevance score assigned to document $D$ given query $Q$.
+    \item $\sum$ denotes the sum over all query terms from $i=1$ to $n$, where $n$ is the number of unique terms in the query.
+    \item $\text{IDF}(q_i)$ is the Inverse Document Frequency of term $q_i$, indicating its importance across the entire document corpus.
+    \item $f(q_i, D)$ represents the frequency of term $q_i$ in document $D$, suggesting its significance to the document's topic.
+    \item $k_1$ is a hyperparameter that fine-tunes the impact of term frequency.
+    \item $b$ is a hyperparameter that governs the extent of length normalization.
+    \item $|D|$ is the length of document $D$, signifying the total word count.
+    \item $\text{avgdl}$ is the average document length across the corpus, providing a normalization point for document length.
 \end{itemize}
+
+
+\section{Transformer}
+
+\section{Prompt Learning}
+
+\section{In Context Learning}
+
+\section{Pointwise}
+
+\section{Pairwise}
 
 %==================================================================================================================================
 \chapter{Analysis/Requirements}
